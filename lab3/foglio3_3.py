@@ -1,39 +1,60 @@
-import functools
 import operator
 
 class PolishCalculator:
 
     def __init__(self):
-        self._stack = []
         self._operand = { '+': operator.add, '-': operator.sub, '*': operator.mul, '**': operator.pow, 'or': operator.or_, 'not': operator.not_, 'and': operator.and_ }
-        self.result = 0
+        self._stack = []
+        self._infix = []
+        self._regular = ""
 
-    def eval(self, str):
-        l = list(str)
-        l.reverse()
+    def eval(self, string):
+        l = string.split(sep = ' ')
 
+        self._expr = []
+        t = ['True', 'T', 't', 'TRUE']
+        f = ['False', 'F', 'f', 'FALSE']
         for el in l:
-            if (el.isdigit() == True) or ((el in self._operand.keys()) == True):
-                if (el.isdigit() == True):
+            if el.isdigit() or (el in self._operand.keys()) or (el in t) or (el in f):
+                if el.isdigit():
                     new = float(el)
+                elif el in t:
+                    new = True
+                elif el in f:
+                    new = False
                 else:
                     new = el
-                self._stack.append(new)
 
-        while len(self._stack) > 0:
-            buff = []
-            x = self._stack.pop()
+                self._expr.append(new)
 
-            while (x in self._operand.keys()) == False:
-                buff.append(x)
-                x = self._stack.pop()
+        for x in self._expr:
+            if type(x) == float:
+                self._stack.append(x)
+                self._infix.append(str(x))
 
-            tot = functools.reduce(self._operand[x], buff)
-            self.result = self._operand[x](self.result, tot)
+            elif type(x) == bool:
+                self._stack.append(x)
+                self._infix.append(str(x))
 
-        return self.result
+            elif (x in self._operand.keys()):
+                b = self._stack.pop()
+                a = self._stack.pop()
+                B = self._infix.pop()
+                A = self._infix.pop()
+
+                self._infix.append( '(' + A +' ' + x + ' ' + B + ')' )
+                self._stack.append( self._operand[x](a, b) )
+
+            print( self._stack[-1] )
+            print( self._infix[-1] )
+
+        self._regular = self._infix.pop()
+        self.result = self._stack.pop()
+
+        return  self.result
 
     def __str__(self):
-        s = ""
-        
-        return s
+        if self._regular == "":
+            return "Non è ancora stata valutata nessuna espressione"
+        else:
+            return self._regular
