@@ -1,5 +1,6 @@
 
-# decorator for method init of class person to substitute the old init with this new decorated version in metaclass counter
+
+#### decorator for method init of class person to substitute the old init with this new decorated version in metaclass counter ####
 def init_update(F):
     def wrapper(*args):
         obj = args[0]
@@ -15,7 +16,7 @@ class counter(type):
         return type.__new__(meta, classname, supers, classdict)
 ##################################################################
 
-# method init to substitute the old init in metaclass spell
+#### method init to substitute the old init in metaclass spell ####
 def init_spell(obj, name, lastname, birthday, payperhour, hday = 8, dweek = 5):
     obj.name = name
     obj.lastname = lastname
@@ -34,7 +35,37 @@ class spell(type):
         return type.__new__(meta, classname, supers, classdict)
 ##################################################################
 
-class Person(metaclass=spell):
+#### this function will override __getattribute__ in metaclass multiTrigger ####
+def getTriggeredAttr(self, val):
+
+    if val in object.__getattribute__(self, 'trigger').keys():
+        object.__getattribute__(self, 'trigger')[val] += 1
+
+        if  object.__getattribute__(self, 'trigger')[val] >= 2:
+            object.__getattribute__(self, 'trigger')[val] = 0
+            return object.__getattribute__(self, val)
+
+        else:
+            return object.__getattribute__(self, 'trigger_message_get')
+    else:
+        return object.__getattribute__(self, val)
+
+class multiTrigger(type):
+    def __new__(meta, classname, supers, classdict):
+        classdict['trigger'] = dict()
+        classdict['__getattribute__'] = getTriggeredAttr
+        classdict['trigger_message'] = 'Il metodo va chiamato almeno 2 volte prima che sia eseguito'
+        classdict['trigger_message_get'] = lambda s: s.trigger_message
+
+        return type.__new__(meta, classname, supers, classdict)
+
+    def __init__(Class, classname, supers, classdict):
+        for k, v in Class.__dict__.items():
+            if str(type(v)) == "<class \'function\'>":
+                Class.__dict__['trigger'][k] = 0
+######################################################################
+
+class Person(metaclass = multiTrigger):
     def __init__(self, name, lastname, birthday):
         self.name = name
         self.lastname = lastname
