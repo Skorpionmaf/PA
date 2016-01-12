@@ -15,10 +15,9 @@ class my_str(str):
         return isp
 
     def __sub__(self, other):
-        p = list(other)
         l = ""
         for el in self:
-            if (el in p) == False:
+            if el not in other:
                 l += el
 
         return my_str(l)
