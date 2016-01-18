@@ -4,7 +4,9 @@ def words_dict_gen(path = './wordlist-anagram.txt'):
     f = open(path, "r")
     words_dict = dict()
     map_dict = dict()
+    list_words = []
 
+    i = 0
     for l in f:
         w = l.strip()
         w_l = "".join( sorted(list(w.lower())) )
@@ -14,8 +16,9 @@ def words_dict_gen(path = './wordlist-anagram.txt'):
             words_dict[w_l] = []
 
         map_dict[w] = w_l
+        list_words.append(w)
 
-    return (words_dict, map_dict)
+    return (words_dict, map_dict, list_words)
 
 
 def anagram(word, words_dict = {}):
@@ -32,21 +35,20 @@ def anagram(word, words_dict = {}):
 
 
 def anagrams():
-    words_dict, map_dict = words_dict_gen()
+    words_dict, map_dict, list_words = words_dict_gen()
 
     path_out = './output.txt'
     fw = open(path_out, "w")
 
     cache = []
-    for w in sorted(map_dict.keys()):
+    for w in list_words:
         word_sorted = map_dict[w]
 
-        if len(words_dict[word_sorted]) >= 2 and w not in cache:
+        if len(words_dict[word_sorted]) >= 2 and word_sorted not in cache:
             s = "{0}   :-      {1}".format(w.ljust(10), words_dict[word_sorted])
             fw.write( s + '\n')
 
-            cache.append(w)
-            for x in words_dict[word_sorted]: cache.append(x)
+            cache.append(word_sorted)
 
 if __name__ == '__main__':
 
