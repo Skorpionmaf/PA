@@ -1,4 +1,4 @@
-
+# Another type of problem
 def words_dict_gen(path = '/usr/share/dict/words'):
     f = open(path, "r")
     words_dict = dict()
