@@ -1,3 +1,10 @@
+import functools
+
+def filter_cars(x):
+    l = list(x)
+    cars = [';', ':', '.', ',', '\"', '\'', '[', ']', '{', '}', '(', ')']
+    l_new = list(map(lambda x: " " if x in cars else x, l))
+    return "".join(l_new).split()
 
 class UpDownFile:
 
@@ -6,20 +13,30 @@ class UpDownFile:
 
     def __iter__(self):
         self.fr = open(self.path, "r")
-        self.content = self.fr.read().split()
+        self.cache = []
         self.index = 0
-        self.finish = len(self.content) -1
+        self.stop = False
 
         return self
 
     def __next__(self):
-        while self.index <= self.finish:
-            res = self.content[self.index]
+        while True:
+            if self.index == len( self.cache ):
+                new_words = self.fr.read(256).split()
+                new_words = list( map(filter_cars, new_words) )
+
+                if len(new_words) == 0:
+                    self.stop = True
+                    break
+                else:
+                    new_words = functools.reduce(lambda x, y: x+y, new_words)
+                    for x in new_words: self.cache.append(x)
+
+            res = self.cache[self.index]
             self.index += 1
             return res
 
-        if self.index > self.finish:
-            self.fr.close()
+        if self.stop:
             raise StopIteration
 
     def ungetw(self):
