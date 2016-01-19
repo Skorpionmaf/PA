@@ -1,25 +1,18 @@
 import timeit
 
 def words_dict_gen(path = './wordlist-anagram.txt'):
-    f = open(path, "r")
     words_dict = dict()
-    map_dict = dict()
-    list_words = []
 
-    i = 0
+    f = open(path, "r")
     for l in f:
         w = l.strip()
         w_l = "".join( sorted(list(w.lower())) )
         if w_l in words_dict.keys():
             words_dict[w_l].append( w )
         else:
-            words_dict[w_l] = []
+            words_dict[w_l] = [w]
 
-        map_dict[w] = w_l
-        list_words.append(w)
-
-    return (words_dict, map_dict, list_words)
-
+    return words_dict
 
 def anagram(word, words_dict = {}):
     if len(words_dict) == 0:
@@ -35,24 +28,28 @@ def anagram(word, words_dict = {}):
 
 
 def anagrams():
-    words_dict, map_dict, list_words = words_dict_gen()
+    words_dict = words_dict_gen()
 
-    path_out = './output.txt'
-    fw = open(path_out, "w")
+    #path_out = './output.txt'
+    #fw = open(path_out, "w")
 
+    new_dict = { w[0]:sorted(w[1:], key = str.lower) for w in words_dict.values() if len(w)>2 }
     cache = []
-    for w in list_words:
-        word_sorted = map_dict[w]
+    res = []
+    for k in sorted(new_dict.keys(), key = str.lower):
+        w = new_dict[k]
+        if k not in cache:
+            s = ("{:12}   :-      {}" + (len(w) -1)*" {}").format(k.ljust(10), *w)
+            #fw.write( s + '\n')
+            res.append(s)
 
-        if len(words_dict[word_sorted]) >= 2 and word_sorted not in cache:
-            s = "{0}   :-      {1}".format(w.ljust(10), words_dict[word_sorted])
-            fw.write( s + '\n')
+            cache.append(k)
+            for x in w: cache.append(x)
 
-            cache.append(word_sorted)
+    return res
 
 if __name__ == '__main__':
-
-    print("execution of anagrams with mapping dictionary")
+    print("execution of Mio anagrams")
     start = timeit.timeit()
     anagrams()
     end = timeit.timeit()
