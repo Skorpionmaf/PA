@@ -1,11 +1,5 @@
 import functools
 
-def filter_cars(x):
-    l = list(x)
-    cars = [';', ':', '.', ',', '\"', '\'', '[', ']', '{', '}', '(', ')']
-    l_new = list(map(lambda x: " " if x in cars else x, l))
-    return "".join(l_new).split()
-
 class UpDownFile:
     def __init__(self, path_file):
         self.path = path_file
@@ -20,7 +14,7 @@ class UpDownFile:
     def __next__(self):
         if self.index == len( self.cache ):
             new_words = self.fr.read(256).split()
-            new_words = list( map(filter_cars, new_words) )
+            new_words = list( map(self.filter_cars, new_words) )
 
             if len(new_words) == 0:
                 raise StopIteration
@@ -30,8 +24,13 @@ class UpDownFile:
 
         res = self.cache[self.index]
         self.index += 1
-        
+
         return res
 
     def ungetw(self):
         self.index -= 1
+
+    def filter_cars(self, w):
+        cars = [c for c in ';:.,\"[]{}()\'<>']
+        l_new = list(map(lambda x: " " if x in cars else x, w))
+        return "".join(l_new).split()
