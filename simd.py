@@ -1,44 +1,34 @@
 import threading, functools
 
-class myThread(threading.Thread):
-    def __init__(self, thID, name, fun, l):
-        threading.Thread.__init__(self)
-        self.ID = thID
-        self.name = name
-        self.method = fun
-        self.arg = l
-    def run(self):
-        print('Starting {0}'.format(self.name))
-        self.res = self.method(self.arg)
-        print('Finish {0}'.format(self.name))
+def input(l, n_thds):
+    sub_set = int(len(l) / n_thds )
+    orig = l[:]
+    input = [ [orig.pop() for j in range(sub_set)] for i in range(n_thds) ]
 
-def split_and_merge(n_thd, recomposition_fun):
+    extra = len(l) - sub_set*n_thds
+    ext = [orig.pop() for i in range(extra)]
+    if ext != []:
+        input.append( ext )
+
+    return input
+
+def split_and_merge(n_thds, recomposition_fun):
     def decorator(F):
+        thread_res = []
+
+        def th(sub_list):
+            thread_res.append(F(sub_list))
+
         def wrapper(*args):
-            n_thds = n_thd
-            l = args[0]
-
-            sub_set = int(len(l) / n_thds )
-            orig = l[:]
-            input = [ [orig.pop() for j in range(sub_set)] for i in range(n_thds) ]
-
-            extra = len(l) - sub_set*n_thds
-            ext = [orig.pop() for i in range(extra)]
-            if ext != []:
-                input.append( ext )
-                n_thds = n_thds + 1
-
-            tds = [ myThread(i, 'Thread {0}'.format(i) + ' of ' + F.__name__, F, input[i]) for i in range(n_thds) ]
+            inp = input(args[0], n_thds)
+            tds = [ threading.Thread(target=th, args=(sl,)) for sl in inp ]
 
             for t in tds: t.start()
 
             for t in tds: t.join()
             print('All Threads have finished')
 
-            results = [ t.res for t in tds ]
-            print(results)
-
-            return  recomposition_fun(results)
+            return recomposition_fun(thread_res)
         return wrapper
     return decorator
 
