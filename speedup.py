@@ -3,8 +3,7 @@ def memoization(F):
     results = dict()
 
     def wrapper(*args):
-        l = [str(x) for x in args]
-        k = ",".join(l)
+        k = args
         if k in results:
             print("caching result for {0}".format(k))
             return results[k]
