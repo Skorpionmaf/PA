@@ -1,4 +1,4 @@
-import time
+import time, traceback, sys
 
 def memoization(F):
     def wrapper(*args):
@@ -6,6 +6,7 @@ def memoization(F):
         if 'results' not in obj.__dict__:
             obj.results = dict()
 
+        print(args)
         if args[1:] not in obj.results.keys():
             print("\ncalculating the result...")
             obj.results[ args[1:] ] = F(*args)
@@ -40,10 +41,16 @@ def logging(F):
         return res
     return wrapper
 
+def stack_trace(F):
+    def wrapper(*args):
+        print('cal to ' + F.__name__ + str(args) )
+        return F(*args)
+    return wrapper
+
+
 class MyMath:
 
     @memoization
-    @logging
     def fib(self, start_value, n_terms):
 
         l = [start_value, start_value]
@@ -52,8 +59,7 @@ class MyMath:
 
         return l
 
-    @memoization
-    @logging
+    @stack_trace
     def fact(self, n):
 
         res = 1
@@ -62,6 +68,7 @@ class MyMath:
 
         return res
 
+    @stack_trace
     def deriv(self, dx, f, a, order):
 
         if order == 1:
@@ -69,8 +76,7 @@ class MyMath:
         else:
             return (self.deriv(dx, f, a + dx, order-1) - self.deriv(dx, f, a, order-1)) / (dx)
 
-    @memoization
-    @logging
+
     def taylor(self, f, x, a, order, precision = 0.01):
         dx = precision
 
