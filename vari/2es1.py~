@@ -1,0 +1,5 @@
+def tre_o_cinque(x): return( x%3 or x%5)
+
+numbers = [x for x in range(1, 1001)]
+
+filter_numbers = 

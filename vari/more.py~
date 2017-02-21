@@ -1,0 +1,5 @@
+def more(file):
+
+    content = open('001.csv').read().split('\n')
+    tot_line = len(content)
+    groups = int(tot_line/30)

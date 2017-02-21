@@ -1,0 +1,5 @@
+divisori = [x for x in range(1,21)]
+
+
+def test(x, fact):
+    

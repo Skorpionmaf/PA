@@ -1,0 +1,9 @@
+divisori = [x for x in range(1,21)]
+
+
+prova = 60%divisori
+
+print(prova)
+#def check_divisibility(x, d):
+
+    

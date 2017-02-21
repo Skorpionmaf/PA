@@ -1,0 +1,11 @@
+import calendar
+
+def first_bisestile(x):
+    if calendar.isleap(x) != True:
+        first_bisestile(x+1);
+    else:
+        return x;
+
+y = first_bisestile(2015)
+    
+

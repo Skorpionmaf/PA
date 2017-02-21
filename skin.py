@@ -3,6 +3,7 @@ import types
 def become(obj, s_m_add, s_m_del):
     for m in s_m_add:
         setattr(obj, m.__name__, types.MethodType(m, obj))
+        #setattr(obj, m.__name__, m.__get__(obj)
     for m in s_m_del:
         delattr(obj, m.__name__)
 

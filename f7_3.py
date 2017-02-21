@@ -25,7 +25,7 @@ class Matrix:
     def __add__(self, other):
         if self.dimension() == other.dimension():
             new_matrix = []
-            for i in range(0, self.dim_row()):
+            for l in range(0, self.dim_row()):
                 new_matrix.append( [] )
                 for j in range(0, self.dim_column()):
                     new_matrix[i].append( self.matrix[i][j] + other.matrix[i][j] )

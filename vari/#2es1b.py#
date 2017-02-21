@@ -1,0 +1,19 @@
+import functools
+
+def and_logico(x, y): return(x and y)
+
+divisori = [x for x in range(1,21)]
+
+def trova(start, div):
+    test = [(start%x == 0) for x in div]
+    res = functools.reduce(and_logico, test)
+
+    if res:
+        return start
+    else:
+        trova(start+20, divisori)
+
+
+print(trova(20, divisori))
+
+    

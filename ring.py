@@ -1,0 +1,142 @@
+import unittest, sys
+
+def make_ring(R, z, op1, i, op2):
+    R.z = z
+    R.i = i
+    R.__add__ = op1
+    R.__mul__ = op2
+    return R
+
+def test_ring(ring):
+    class check_all(unittest.TestCase):
+        def test_closure_sum(self):
+            '''Test sum closure'''
+            checks = [ (x+y).inSet() for x in ring.elements() for y in ring.elements() ]
+            self.assertTrue( all(checks), msg='Closure property violated for sum')
+
+        def test_closure_mul(self):
+            '''Test mul closure'''
+            checks = [ (x*y).inSet() for x in ring.elements() for y in ring.elements() ]
+            self.assertTrue( all(checks), msg='Closure property violated for mul')
+
+        def test_associativity_sum(self):
+            '''Test sum associativity'''
+            checks = [ ((x+y)+z) == (x+(y+z)) for x in ring.elements() for y in ring.elements() for z in ring.elements() ]
+            self.assertTrue( all(checks), msg='associativity for sum violated')
+
+        def test_associativity_mul(self):
+            '''Test mul associativity'''
+            checks = [ ((x*y)*z) == (x*(y*z)) for x in ring.elements() for y in ring.elements() for z in ring.elements() ]
+            self.assertTrue( all(checks), msg='associativity for mul violated')
+
+        def test_identity_sum(self):
+            '''Test sum identity'''
+            checks = [ (ring.z + x == x) for x in ring.elements() ]
+            self.assertTrue( all(checks), msg='identity element not valid for sum')
+
+        def test_identity_mul(self):
+            '''Test mul identity'''
+            checks = [ (ring.i * x == x) for x in ring.elements() ]
+            self.assertTrue( all(checks), msg='identity element not valid for mul')
+
+        def test_invertibility_sum(self):
+            '''Test sum invertibility'''
+            checks = []
+            for x in ring.elements(): checks += [ any( [ (x+y) == ring.z for y in ring.elements() ] ) ]
+            self.assertTrue( all(checks), msg='invertibility failed')
+
+        def test_distributivity_2(self):
+            '''Test distributivity 2'''
+            checks1 = [ (x+y)*z == (x*z)+(y*z) for x in ring.elements() for y in ring.elements() for z in ring.elements() ]
+            self.assertTrue(all(checks1), msg='distributivity 1 failed')
+
+        def test_distributivity_1(self):
+            '''Test distributivity 1'''
+            checks1 = [ x*(y+z) == (x*y)+(x*z) for x in ring.elements() for y in ring.elements() for z in ring.elements() ]
+            self.assertTrue(all(checks1), msg='distributivity 1 failed')
+
+    return check_all
+
+def z_gen():
+    x = 0
+    yield Z(x)
+    while True:
+        x += 1
+        yield Z(x)
+        yield Z(-x)
+
+class Z:
+    def __init__ (self, val): self.val = val
+
+    def __eq__(self, other): return self.val == other.val
+
+    def __repr__(self): return str(self.val)
+
+    @staticmethod
+    def elements(n=50): return [Z(x) for x in range(-n, n+1)]
+
+    def inSet(self): return (self in z_gen())
+
+def nz_gen():
+    x = 0
+    yield nZ(x)
+    while True:
+        x += 1
+        yield nZ(x)
+        yield nZ(-x)
+
+class nZ:
+    def __init__(self, val): self.val = val
+
+    def __eq__(self, other): return self.val == other.val
+
+    def __repr__(self): return str(self.val)
+
+    @staticmethod
+    def elements(n=50): return [nZ(x) for x in range(-n, n+1)]
+
+    def inSet(self): return (self in nz_gen())
+
+class Z_4:
+    def __init__(self, val): self.val = val
+
+    def __eq__(self, other): return self.val == other.val
+
+    def __repr__(self): return str(self.val)
+
+    @staticmethod
+    def elements(n=50): return [ Z_4(x) for x in range(0, 4) ]
+
+    def inSet(self): return ( self in Z_4.elements() )
+
+
+ring1 = make_ring(Z, Z(0), lambda x, y: Z(x.val+y.val), Z(1), lambda x, y: Z(x.val*y.val))
+tc1 = test_ring(ring1)
+
+ring2 = make_ring(nZ, nZ(1), lambda x, y: nZ(x.val*y.val), Z(0), lambda x, y: nZ(x.val+y.val))
+tc2 = test_ring(ring2)
+
+ring3 = make_ring(Z_4, Z_4(1), lambda x, y: Z_4( (x.val+y.val)%4 ), Z(0), lambda x, y: Z_4( (x.val*y.val)%4 ))
+tc3 = test_ring(ring3)
+
+all_tests = [(tc1, "Z"), (tc2, "nZ"), (tc3, "Z_4")]
+
+#suite = unittest.TestSuite()
+
+if __name__ == "__main__":
+
+    test = []
+    for tc, n in all_tests:
+        suite = unittest.TestSuite()
+        suite.addTests(unittest.TestLoader().loadTestsFromTestCase(tc))
+
+        sys.stdout.flush()
+        print('Tests on {}'.format(n))
+        sys.stdout.flush()
+        unittest.TextTestRunner(verbosity=2).run(suite)
+        sys.stdout.flush()
+
+
+    # for tc in all_tests:
+    #     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(tc))
+    # unittest.TextTestRunner(verbosity=2).run(suite)
